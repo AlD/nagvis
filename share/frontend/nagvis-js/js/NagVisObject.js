@@ -648,6 +648,9 @@ var NagVisObject = Base.extend({
      * @author  Lars Michelsen <lars@vertical-visions.de>
      */
     parseCoord: function(val, dir, addZoom) {
+        if (addZoom === undefined)
+            addZoom = true;
+
         var coord = 0;
         if(!isRelativeCoord(val)) {
             coord = parseInt(val);
@@ -658,8 +661,18 @@ var NagVisObject = Base.extend({
                 var objectId  = parts[0];
                 var offset    = parts[1];
                 var refObj    = getMapObjByDomObjId(objectId);
-                if(refObj)
-                    coord = parseFloat(refObj.parseCoord(refObj.conf[dir], dir, false)) + parseFloat(offset);
+                if (refObj) {
+                    coord = parseFloat(refObj.parseCoord(refObj.conf[dir], dir, false));
+                    if (addZoom)
+                        coord = addZoomFactor(coord, true);
+
+                    if (addZoom)
+                        coord += addZoomFactor(parseFloat(offset), false);
+                    else
+                        coord += parseFloat(offset);
+
+                    return coord;
+                }
             } else {
                 // Only an object id. Get the coordinate and return it
                 var refObj = getMapObjByDomObjId(val);
@@ -668,7 +681,7 @@ var NagVisObject = Base.extend({
             }
         }
 
-        if(addZoom === undefined || addZoom === true)
+        if (addZoom)
             return addZoomFactor(coord, true);
         else
             return coord;
@@ -1180,6 +1193,14 @@ var NagVisObject = Base.extend({
                           this.conf.line_cut);
         else
             return this.parseCoords(coord, dir)[1];
+    },
+
+    lineCoords: function() {
+        return [
+            this.parseCoords(this.conf.x, 'x'),
+            this.parseCoords(this.conf.y, 'y'),
+            [this.conf.line_cut, this.conf.line_label_pos_in, this.conf.line_label_pos_out]
+        ];
     },
 
     removeControls: function() {
