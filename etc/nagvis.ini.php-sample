@@ -257,6 +257,8 @@
 ; default icons
 ;icons="std_medium"
 ; recognize only hard states (not soft)
+; Merge custom variables defined in Nagios objects with NagVis Objects
+;merge_custom_vars=0
 ;onlyhardstates=0
 ; recognize service states in host/hostgroup objects
 ;recognizeservices=1

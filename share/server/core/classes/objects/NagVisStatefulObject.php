@@ -340,7 +340,6 @@ class NagVisStatefulObject extends NagVisObject {
 
         // Macros which are only for services and hosts
         if($this->type == 'host' || $this->type == 'service') {
-            $arr['custom_variables'] = val($this->state, CUSTOM_VARS);
             $arr['downtime_author'] = val($this->state, DOWNTIME_AUTHOR);
             $arr['downtime_data']   = val($this->state, DOWNTIME_DATA);
             $arr['downtime_start']  = val($this->state, DOWNTIME_START);
@@ -355,6 +354,13 @@ class NagVisStatefulObject extends NagVisObject {
             $arr['last_hard_state_change'] = $this->get_date(LAST_HARD_STATE_CHANGE);
             $arr['state_duration']         = $this->getStateDuration();
             $arr['perfdata'] = $this->escapeStringForJson(val($this->state, PERFDATA, ''));
+
+            // overwrite any attributes with data provided by custom variables if desired
+            $cv = val($this->state, CUSTOM_VARS);
+            if ($cv && cfg('defaults','merge_custom_vars'))
+                $arr = array_merge($arr, $this->convertCustomVars($cv));
+            else
+                $arr['custom_variables'] = $cv;
         }
 
         // Enable/Disable fetching children
@@ -734,6 +740,15 @@ class NagVisStatefulObject extends NagVisObject {
                 }
             }
         }
+    }
+
+    /**
+     * Nagios converts all custom variables to uppercase, so to use them
+     * as NagVis object attributes they need to be converted to
+     * lowercase.
+     */
+    private function convertCustomVars($array) {
+      return array_change_key_case($array, CASE_LOWER);
     }
 }
 ?>

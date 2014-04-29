@@ -613,6 +613,12 @@ $mapConfigVars = Array(
         'depends_value' => '1'
     ),
 
+    'merge_custom_vars' => Array(
+        'must' => 0,
+        'default'        => cfg('defaults', 'merge_custom_vars'),
+        'match'          => MATCH_BOOLEAN,
+        'field_type'     => 'boolean'),
+
     'only_hard_states' => Array(
         'must' => 0,
         'default' => cfg('defaults', 'onlyhardstates'),
